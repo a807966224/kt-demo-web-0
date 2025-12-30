@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/openjdk:21
 
 # 设置环境变量
 ENV JAVA_OPTS="-Xms512m -Xmx512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/java/errorDump.hprof -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=4M"
