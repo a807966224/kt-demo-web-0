@@ -1,9 +1,9 @@
 server:
-  port: 22222
+  port: 22225
 
 spring:
   application:
-    name: kt-demo-web-0
+    name: kt-demo-web-${server.port}
 
   r2dbc:
     url: r2dbc:h2:mem:///testdb
