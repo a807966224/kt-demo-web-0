@@ -27,6 +27,8 @@ class Test (
     @GetMapping("/get")
     fun get(): String {
         log.info("i'm a thread start ${Thread.currentThread().name}")
+        val a: Int = 0
+        Thread.sleep(5000)
         return "get"
     }
 

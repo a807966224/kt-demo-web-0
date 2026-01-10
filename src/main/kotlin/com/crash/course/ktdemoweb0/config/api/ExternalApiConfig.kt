@@ -1,14 +1,13 @@
 package com.crash.course.ktdemoweb0.config.api
 
 import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.formatHeaders
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
@@ -16,6 +15,10 @@ import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
 import org.springframework.web.service.invoker.createClient
 import reactor.core.publisher.Mono
+import reactor.netty.http.client.HttpClient
+import reactor.netty.http.client.HttpClientConfig
+import java.time.Duration
+import java.util.function.Consumer
 
 /**
  * @Author: xin yi
@@ -23,10 +26,10 @@ import reactor.core.publisher.Mono
  * @Version 1.0
  */
 @SpringBootConfiguration
-class ExternalApiConfig(private val webClientBuilder: WebClient.Builder) {
+class ExternalApiConfig {
 
-//    @Value("\${base.url:http://kt-web-nacos-service-22226:22226}")
-    @Value("\${base.url:http://example-apisix-1:9080}")
+    @Value("\${base.url:http://localhost}")
+//    @Value("\${base.url:http://example-apisix-1:9080}")
     private lateinit var baseUrl: String
 
     @Value("\${server.port:22223}")
@@ -57,13 +60,53 @@ class ExternalApiConfig(private val webClientBuilder: WebClient.Builder) {
     }
 
 
+//    @Bean
+//    fun testWebClientBuilder() : WebClient.Builder {
+//        val httpClient = HttpClient.create()
+//            .wiretap(true)
+//            .responseTimeout(Duration.ofSeconds(1))
+//        return WebClient.builder()
+//            .filter(this.createLogFilter())
+//            .clientConnector(ReactorClientHttpConnector(httpClient))
+//    }
+
+//    @Bean
+//    fun webClient(testWebClientBuilder : WebClient.Builder): WebClient {
+//        return testWebClientBuilder.clone().baseUrl("$baseUrl:$port").build()
+//
+////        val httpClient = HttpClient.create()
+////            .wiretap(true)
+////            .responseTimeout(Duration.ofSeconds(1))
+////
+////        return WebClient.builder()
+////            .baseUrl("$baseUrl:$port")
+////            .clientConnector(ReactorClientHttpConnector(httpClient))
+////            .filter(this.createLogFilter()).build()
+//
+////        return webClientBuilder
+////            .baseUrl("$baseUrl:$port")
+//////            .baseUrl(baseUrl)
+////            .filter(this.createLogFilter())
+////            .build()
+//    }
+
     @Bean
-    fun webClient(): WebClient {
-        return webClientBuilder.clone()
-//            .baseUrl("$baseUrl:$port")
-            .baseUrl(baseUrl)
-            .filter(this.createLogFilter())
-            .build()
+    fun webClient(@Qualifier("webClientBuilder") webClientBuilder: WebClient.Builder): WebClient {
+        return webClientBuilder.clone().baseUrl("$baseUrl:$port").filter(this.createLogFilter()).build()
+    }
+
+    @Bean("webClientBuilder")
+    fun webClientBuilder(): WebClient.Builder {
+        val httpClient = HttpClient.create()
+            .wiretap(false)
+            .responseTimeout(Duration.ofSeconds(1))
+            .doOnConnect(Consumer { conn: HttpClientConfig? ->
+                log.info("connecting to: {}", conn!!.responseTimeout())
+            })
+
+
+        return WebClient.builder()
+            .clientConnector(ReactorClientHttpConnector(httpClient))
     }
 
 

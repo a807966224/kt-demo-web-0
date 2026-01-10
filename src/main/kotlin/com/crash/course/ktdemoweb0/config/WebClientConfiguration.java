@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.reactivestreams.Publisher;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
@@ -35,22 +35,27 @@ import java.util.function.Consumer;
  */
 @Configuration
 @RequiredArgsConstructor
+@SpringBootConfiguration
 @Slf4j
 public class WebClientConfiguration {
 
     private final ObjectMapper objectMapper;
 
-    @Bean
-    @Primary
+    @Bean("webClientBuilder")
     public WebClient.Builder webClientBuilder() {
         var httpClient = HttpClient.create()
                 .wiretap(true)
-                .responseTimeout(Duration.ofSeconds(10));
+                .responseTimeout(Duration.ofSeconds(1))
+                .doOnConnect(conn -> {
+                    log.info("connecting to: {}", conn.responseTimeout());
+                });
+
 
         return WebClient.builder()
                 .codecs(setCodecs())
+                .filter(this::filter)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .filter(this::filter);
+                ;
     }
 
     private Consumer<ClientCodecConfigurer> setCodecs() {

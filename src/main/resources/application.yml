@@ -1,5 +1,8 @@
 server:
-  port: 22225
+  port: 22230
+  netty:
+    idle-timeout: 2s
+
 
 spring:
   application:
