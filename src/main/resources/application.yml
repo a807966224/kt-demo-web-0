@@ -1,9 +1,12 @@
 server:
-  port: 22222
+  port: 22230
+  netty:
+    idle-timeout: 2s
+
 
 spring:
   application:
-    name: kt-demo-web-0
+    name: kt-demo-web-${server.port}
 
   r2dbc:
     url: r2dbc:h2:mem:///testdb
