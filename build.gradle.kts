@@ -39,6 +39,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    // Source: https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-datetime
+    runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
+
 
     // H2（示例用）
     runtimeOnly("com.h2database:h2")
